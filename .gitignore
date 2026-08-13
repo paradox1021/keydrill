@@ -1,0 +1,11 @@
+*.elc
+*-autoloads.el
+*-pkg.el
+.elpa/
+
+.tools/
+
+# Extraction scratch from the web trainer; the package deck is
+# keydrill-deck-emacs.el.
+emacs-deck.json
+keydrill.code-workspace

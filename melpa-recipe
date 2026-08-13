@@ -1,0 +1,5 @@
+;; MELPA recipe template.  REPO is TBD — there is no public GitHub
+;; URL yet.  Do not invent USER/keydrill.  Replace the repo string
+;; when the remote exists, then copy this form into MELPA's recipes/.
+;;
+;; (keydrill :fetcher github :repo "USER/keydrill")

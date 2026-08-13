@@ -1,0 +1,16 @@
+---
+description: Repo boundaries
+alwaysApply: true
+---
+- The cmdenter folder is READ-ONLY reference material. Never edit, never
+  copy files from it wholesale, never import its code verbatim.
+- Port LOGIC and DATA only (spaced-repetition lifecycle, session planning,
+  deck content). All Elisp is written fresh in this repo.
+- Never port: anything under /api, /lib/creem, /lib/invite, /lib/ref,
+  paywall/licensing/tier logic, analytics, email capture, pricing.
+  keydrill has ZERO network code. If a change would add url-retrieve,
+  url.el, request.el, or any process talking to a network, stop and ask.
+- License: GPL-3.0-or-later. Every .el file gets the standard GPL header,
+  lexical-binding: t, and must pass checkdoc and package-lint.
+- Docstrings and comments are written in plain, specific, first-person-
+  engineer English. No marketing language.

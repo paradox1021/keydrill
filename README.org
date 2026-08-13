@@ -1,0 +1,145 @@
+#+TITLE: keydrill
+
+* keydrill
+
+Drill Emacs key bindings in short sessions until they stick.  Each
+session introduces a few new moves, then recalls ones still being
+drilled.  At session start, keydrill looks up each command in the
+buffer you launched from and drills *your* binding when it differs
+from the vanilla default.
+
+Requires GNU Emacs 27.1 or later.  Licensed under GPL-3.0-or-later.
+
+** Status
+
+Milestone M7.  Not on MELPA yet.  The working name is ~keydrill~;
+verify it is free on MELPA and GNU ELPA before publishing.
+
+** Install
+
+From source, add the checkout to ~load-path~ and load the package:
+
+#+begin_src emacs-lisp
+(add-to-list 'load-path "/path/to/keydrill")
+(require 'keydrill)
+#+end_src
+
+Or with ~use-package~:
+
+#+begin_src emacs-lisp
+(use-package keydrill
+  :load-path "/path/to/keydrill"
+  :commands (keydrill keydrill-observe-mode keydrill-report
+                      keydrill-purge-data))
+#+end_src
+
+A MELPA recipe will follow once there is a public repository.  See
+[[#melpa-recipe][MELPA recipe]] below.  Do not invent a GitHub URL.
+
+** Usage
+
+- ~M-x keydrill~ — start a session on the curated Emacs deck.  ~q~
+  leaves the session.  A second ~C-g~ within one second also quits
+  (~C-g~ itself is a drill answer when that is the card).
+- ~M-x keydrill-purge-data~ — delete the local progress file after
+  yes-or-no confirmation.
+- ~M-x keydrill-observe-mode~ — opt-in usage observer.  *Off by
+  default.*  When on, it counts how commands are invoked (key, M-x,
+  menu/mouse) into the same local file.  It does not record keystroke
+  content, buffer text, or file names.
+- ~M-x keydrill-report~ — unused-binding gaps from the observer
+  (commands you run via M-x or the menu that already have a key).
+  Jump from a row into a drill of those moves.
+
+** Privacy
+
+No account, no telemetry, no network.  Progress is a readable
+~keydrill-data.eld~ in ~user-emacs-directory~, written with ~prin1~.
+~M-x keydrill-purge-data~ deletes it.
+
+To confirm there is no network code in the package files:
+
+#+begin_src sh
+grep -rn "url-retrieve\|url\\.el\|request" *.el
+#+end_src
+
+** Prior art
+
+[[https://github.com/federicotdn/key-quiz][key-quiz]] (federicotdn) and keywiz already drill Emacs keys from a
+fixed list.  keydrill adds live-keymap resolution (drill the binding
+you actually use) and an opt-in usage-gap observer.
+
+Prompts were adapted from my web trainer.
+
+** Terminal notes
+
+Capture folds terminal and GUI spellings of the same binding:
+~C-/~ ↔ ~C-_~, ~C-SPC~ ↔ ~C-@~, ~TAB~ ↔ ~C-i~, and Escape-prefixed
+Meta chords (~ESC x~ ↔ ~M-x~, ~ESC <~ ↔ ~M-<~, ~ESC C-\~ ↔ ~C-M-\~).
+Live lookup skips menu-bar, mouse, and GUI names such as ~<open>~
+(the File-open event); ~find-file~ drills ~C-x C-f~, not that event.
+
+The landmine matrix is human, not CI.  Walk it in GUI Emacs and in
+~emacs -nw~ before you trust a terminal.  Check each row in both:
+
+| Binding | Why it is a landmine | GUI | tty |
+|---------+----------------------+-----+-----|
+| ~C-g~   | Must score as an answer, not ~keyboard-quit~ | | |
+| ~C-x C-c~ | Must not kill Emacs | | |
+| ~C-/~   | Arrives as ~C-_~ in many terminals | | |
+| ~C-SPC~ | Arrives as ~C-@~ in many terminals | | |
+| ~M-<~   | Arrives as ~ESC <~ | | |
+| ~C-M-\~ | Arrives as ~ESC C-\~ | | |
+
+** Before you publish
+
+These are not CI.  Do them on a real machine tonight:
+
+1. Walk the landmine table above in GUI Emacs *and* ~emacs -nw~.
+   On Windows, ~emacs -nw~ in Windows Terminal is enough.  ~C-M-\~
+   may only arrive as ~ESC C-\~; that still counts if the card
+   scores a hit.
+2. Play one session in ~emacs -Q~ and one in your real config (live
+   keymap).  Confirm a remapped command shows "your binding".
+3. Create the public GitHub repository.  Then:
+   - put the real ~USER/keydrill~ into ~melpa-recipe~
+   - add a ~URL:~ header to ~keydrill.el~ (package-lint currently
+     filters the missing-homepage warning on purpose)
+   - put your name in ~Author~ / ~Maintainer~ (MELPA prefers a
+     person, not "contributors")
+4. Re-check the name ~keydrill~ on MELPA and GNU ELPA on submit day.
+   A local archive snapshot used while building this tree had
+   ~key-quiz~ and not ~keydrill~ or ~keywiz~.
+5. If an announcement quotes a move count: this deck is *85* vanilla
+   GNU Emacs moves.  Do not say 95.  If cmdenter.app still says 95,
+   fix that copy before any email that cites both.
+6. Optional after v1: email Sacha.  Do not start R2/R3.
+
+** MELPA recipe
+:PROPERTIES:
+:CUSTOM_ID: melpa-recipe
+:END:
+
+There is no public GitHub URL yet.  ~REPO~ is TBD.  When a remote
+exists, the MELPA recipe form is:
+
+#+begin_src emacs-lisp
+;; REPO is TBD.  Replace USER/keydrill when the remote exists.
+;; (keydrill :fetcher github :repo "USER/keydrill")
+#+end_src
+
+The same template lives in the ~melpa-recipe~ file at the repo root.
+MELPA generates ~keydrill-pkg.el~; this tree does not ship it.
+
+** Development
+
+#+begin_src sh
+make compile lint test
+#+end_src
+
+~make compile~ byte-compiles with warnings as errors.  ~make lint~
+runs checkdoc and package-lint.  ~make test~ runs the full ERT suite.
+
+** License
+
+GPL-3.0-or-later.  See ~LICENSE~.
