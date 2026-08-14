@@ -34,6 +34,7 @@ Nothing is filtered now that keydrill.el has a URL header."
                 "keydrill-capture.el"
                 "keydrill-ui.el"
                 "keydrill-live.el"
+                "keydrill-journal.el"
                 "keydrill-observe.el"
                 "keydrill-store.el"
                 "keydrill-deck-emacs.el"))

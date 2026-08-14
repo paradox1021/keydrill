@@ -36,6 +36,7 @@
 (require 'keydrill-capture)
 (require 'keydrill-store)
 (require 'keydrill-live)
+(require 'keydrill-journal)
 
 (defvar keydrill-hit-pause-seconds 0.35
   "Seconds to pause after a hit before the next card.
@@ -383,9 +384,15 @@ Does not write the progress file."
       (when display
         (funcall display session))
       (let* ((start (float-time))
-             (move (plist-get (plist-get session :current) :move))
+             (item (plist-get session :current))
+             (move (plist-get item :move))
              (res (keydrill-read-answer
                    (keydrill--move-expected-key move) start)))
+        ;; A quit is not an attempt; the end record carries the abort.
+        (unless (eq (plist-get res :status) 'quit)
+          (keydrill-journal-log-answer
+           (plist-get session :deck-id) move
+           (if (plist-get item :intro) 'intro 'recall) res))
         (setq session (keydrill--session-apply session res))
         (when display
           (funcall display session))
@@ -612,9 +619,12 @@ switching to the drill buffer, whose map is not the user's."
          (session (keydrill--session-make deck deck-id store nil moves))
          (session (keydrill--session-apply-live
                    session keydrill--launch-buffer))
-         (buf (get-buffer-create keydrill-buffer-name)))
+         (buf (get-buffer-create keydrill-buffer-name))
+         (keydrill-journal--session-id
+          (keydrill-journal-new-session-id 'drill)))
     (unless (plist-get session :queue)
       (user-error "Nothing to drill"))
+    (keydrill-journal-log-begin 'drill deck-id (plist-get session :total))
     (keydrill-capture-reset)
     (switch-to-buffer buf)
     (keydrill-mode)
@@ -625,6 +635,7 @@ switching to the drill buffer, whose map is not the user's."
              (keydrill-store-save (plist-get s :store))
              (keydrill--render-card s)
              (redisplay t))))
+    (keydrill-journal-log-end (not (plist-get session :aborted)))
     (if (plist-get session :aborted)
         (progn
           (keydrill-store-save (plist-get session :store))

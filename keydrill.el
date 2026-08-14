@@ -30,6 +30,10 @@
 ;; Drill Emacs key bindings in short sessions until they stick.
 ;; Progress is a readable .eld file in `user-emacs-directory'.
 ;; `M-x keydrill' starts a session on the curated Emacs deck.
+;; `M-x keydrill-benchmark' runs a cold measurement pass over the
+;; deck (no answers shown, store untouched); every answer in drills
+;; and benchmarks is appended to `keydrill-journal-file' so progress
+;; curves can be reconstructed later.
 ;; At session start, each command is looked up in the buffer you
 ;; launched from; a remapped binding is drilled instead of the
 ;; vanilla default.  `M-x keydrill-observe-mode' is an opt-in usage
@@ -56,6 +60,16 @@
   "File where keydrill stores progress.
 The file is a readable Lisp sexp written with `prin1'."
   :type 'file
+  :group 'keydrill)
+
+(defcustom keydrill-journal-file
+  (locate-user-emacs-file "keydrill-journal.eld")
+  "File where keydrill appends one readable sexp per answered card.
+The raw material for progress curves: the aggregate store cannot
+reconstruct per-binding latency over time, this can.  Local only,
+like everything else here.  Set to nil to disable journaling.
+`M-x keydrill-journal-purge' deletes it."
+  :type '(choice file (const :tag "Disabled" nil))
   :group 'keydrill)
 
 (defcustom keydrill-max-new-per-session 5
@@ -87,6 +101,7 @@ user knows what to type after that chord."
 
 (require 'keydrill-engine)
 (require 'keydrill-capture)
+(require 'keydrill-journal)
 (require 'keydrill-ui)
 (require 'keydrill-live)
 (require 'keydrill-observe)

@@ -44,8 +44,15 @@ Or with ~use-package~:
 - ~M-x keydrill~ — start a session on the curated Emacs deck.  ~q~
   leaves the session.  A second ~C-g~ within one second also quits
   (~C-g~ itself is a drill answer when that is the card).
+- ~M-x keydrill-benchmark~ — one cold recall pass over the whole
+  deck, live-resolved: no answers shown, misses not requeued, the
+  progress store untouched.  A measurement, not a lesson.  Run it
+  once *before* you start drilling (that baseline is unrepeatable)
+  and weekly after; each answer lands in the journal.
 - ~M-x keydrill-purge-data~ — delete the local progress file after
   yes-or-no confirmation.
+- ~M-x keydrill-journal-purge~ — delete the answer journal the same
+  way.
 - ~M-x keydrill-observe-mode~ — opt-in usage observer.  *Off by
   default.*  When on, it counts how commands are invoked (key, M-x,
   menu/mouse) into the same local file.  It does not record keystroke
@@ -59,6 +66,12 @@ Or with ~use-package~:
 No account, no telemetry, no network.  Progress is a readable
 ~keydrill-data.eld~ in ~user-emacs-directory~, written with ~prin1~.
 ~M-x keydrill-purge-data~ deletes it.
+
+Raw answers (move id, hit/miss, latency, timestamp — never keystroke
+content or buffer text) are appended to a second readable file,
+~keydrill-journal.eld~, so you can reconstruct your own progress
+curves.  Set ~keydrill-journal-file~ to nil to disable;
+~M-x keydrill-journal-purge~ deletes it.
 
 To confirm there is no network code in the package files:
 

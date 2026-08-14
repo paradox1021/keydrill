@@ -6,6 +6,9 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- Append-only answer journal (`keydrill-journal.eld`): one readable sexp per answered card across drills and benchmarks, with session begin/end markers.  `M-x keydrill-journal-purge` deletes it; set `keydrill-journal-file` to nil to disable.
+- `M-x keydrill-benchmark`: cold recall pass over the full deck, live-resolved — no answers shown, no requeue, progress store untouched.  The before/after instrument for progress curves.
+
 - Package skeleton: modules, Makefile, CI, and load-only ERT tests (M1).
 - Move lifecycle, session planner, scoring, and `.eld` store round-trip (M2).
 - `SPEC.md` describing those engine rules in prose.

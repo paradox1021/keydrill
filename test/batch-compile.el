@@ -20,6 +20,7 @@
                 "keydrill-capture.el"
                 "keydrill-store.el"
                 "keydrill-live.el"
+                "keydrill-journal.el"
                 "keydrill-ui.el"
                 "keydrill-deck-emacs.el"
                 "keydrill-observe.el"

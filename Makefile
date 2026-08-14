@@ -19,6 +19,7 @@ test:
 	$(EMACS) -Q --batch -L . -L test \
 		-l test/keydrill-engine-test.el \
 		-l test/keydrill-live-test.el \
+		-l test/keydrill-journal-test.el \
 		-l test/keydrill-observe-test.el \
 		-l test/keydrill-store-test.el \
 		-l test/keydrill-capture-test.el \

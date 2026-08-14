@@ -60,6 +60,7 @@ Look for a \"[0-9]+ warning\" line written by checkdoc."
                 "keydrill-capture.el"
                 "keydrill-ui.el"
                 "keydrill-live.el"
+                "keydrill-journal.el"
                 "keydrill-observe.el"
                 "keydrill-store.el"
                 "keydrill-deck-emacs.el")))
