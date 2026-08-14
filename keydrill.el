@@ -1,9 +1,9 @@
 ;;; keydrill.el --- Drill key bindings until they stick  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026  keydrill contributors
+;; Copyright (C) 2026  Astrolabe Apps, Inc.
 
-;; Author: keydrill contributors
-;; Maintainer: keydrill contributors
+;; Author: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
+;; Maintainer: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: convenience, help

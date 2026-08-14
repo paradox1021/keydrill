@@ -1,8 +1,8 @@
 ;;; keydrill-live.el --- Resolve deck commands against the live keymap  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026  keydrill contributors
+;; Copyright (C) 2026  Astrolabe Apps, Inc.
 
-;; Author: keydrill contributors
+;; Author: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; Keywords: convenience
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -27,6 +27,13 @@
 ;; in the buffer the user launched from.  Drill the user's binding when
 ;; it differs from the vanilla default (`:key'), after comparing both
 ;; sides with `keydrill-normalize-keys' so `C-/' vs `C-_' is not a remap.
+;;
+;; A command often has more than one *stock* binding --
+;; `beginning-of-buffer' answers to M-< and C-<home> both.  Between two
+;; global bindings the deck's `:key' wins, so an untouched Emacs never
+;; reports "your binding".  A binding the user layered on in a local or
+;; minor-mode map still wins over the deck key, which is the point of
+;; the feature.
 ;;
 ;; Unbound commands follow `keydrill-unbound-strategy':
 ;;
@@ -102,21 +109,45 @@ Menu-bar, tool-bar, mouse, and GUI names such as `open' do not."
 
 (defun keydrill-live--first-typeable (keys)
   "Return the first typeable sequence in KEYS as a vector."
-  (let ((found nil))
-    (dolist (k keys)
-      (unless (or found (keydrill-live--unusable-key-p k))
-        (setq found (keydrill-live--key-vector k))))
-    found))
+  (car (keydrill-live--typeable-only keys)))
 
-(defun keydrill-live--lookup (command buffer)
-  "Return the first typeable key vector for COMMAND in BUFFER, or nil.
+(defun keydrill-live--typeable-only (keys)
+  "Return the typeable sequences in KEYS as a list of vectors."
+  (let (out)
+    (dolist (k keys)
+      (unless (keydrill-live--unusable-key-p k)
+        (push (keydrill-live--key-vector k) out)))
+    (nreverse out)))
+
+(defun keydrill-live--all-bindings (command buffer)
+  "Return every typeable key vector for COMMAND in BUFFER.
 Uses BUFFER's active maps.  Menu-bar, tool-bar, mouse, and GUI
 events such as `open' are skipped.  If COMMAND is remapped in
 BUFFER, look up the remapped command instead."
   (with-current-buffer buffer
-    (let* ((target (or (command-remapping command) command))
-           (keys (where-is-internal target nil nil)))
-      (keydrill-live--first-typeable keys))))
+    (let ((target (or (command-remapping command) command)))
+      (keydrill-live--typeable-only (where-is-internal target nil nil)))))
+
+(defun keydrill-live--lookup (command buffer)
+  "Return the first typeable key vector for COMMAND in BUFFER, or nil."
+  (car (keydrill-live--all-bindings command buffer)))
+
+(defun keydrill-live--vanilla-still-bound (bindings vanilla)
+  "Return the member of BINDINGS whose description matches VANILLA, or nil."
+  (let (found)
+    (dolist (k bindings)
+      (unless found
+        (when (keydrill-live--same-binding-p (key-description k) vanilla)
+          (setq found k))))
+    found))
+
+(defun keydrill-live--global-p (keys command buffer)
+  "Return non-nil if KEYS reaches COMMAND through BUFFER's global map.
+A hit means KEYS is stock Emacs, not something the user layered on
+top in a local or minor-mode map."
+  (with-current-buffer buffer
+    (let ((target (or (command-remapping command) command)))
+      (eq target (ignore-errors (lookup-key (current-global-map) keys))))))
 
 (defun keydrill-live--put (move &rest plist)
   "Return a copy of MOVE with PLIST keys replaced.
@@ -149,7 +180,21 @@ Vanilla and live descriptions are compared with
          (strategy (keydrill-live--strategy strategy))
          (command (plist-get move :command))
          (vanilla (or (plist-get move :key) ""))
-         (keys (and command (keydrill-live--lookup command buffer))))
+         (bindings (and command (keydrill-live--all-bindings command buffer)))
+         (top (car bindings))
+         (vanilla-live (keydrill-live--vanilla-still-bound bindings vanilla))
+         ;; `where-is-internal' puts local and minor-mode bindings ahead
+         ;; of global ones, so the first hit is the user's override when
+         ;; there is one -- drill that.  But a command may hold several
+         ;; *stock* bindings at once (`beginning-of-buffer' answers to
+         ;; both M-< and C-<home>), and their order is not the deck's.
+         ;; When the first hit is itself global and the deck key is
+         ;; still live, the deck key wins: a second vanilla alias is not
+         ;; a remap, and must not be labelled "your binding".
+         (keys (if (and top vanilla-live
+                        (keydrill-live--global-p top command buffer))
+                   vanilla-live
+                 top)))
     (cond
      ((null keys)
       (if (eq strategy 'skip)

@@ -1,8 +1,8 @@
 ;;; keydrill-store-test.el --- Tests for keydrill-store  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026  keydrill contributors
+;; Copyright (C) 2026  Astrolabe Apps, Inc.
 
-;; Author: keydrill contributors
+;; Author: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is not part of GNU Emacs.

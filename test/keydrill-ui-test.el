@@ -1,8 +1,8 @@
 ;;; keydrill-ui-test.el --- Tests for keydrill-ui  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026  keydrill contributors
+;; Copyright (C) 2026  Astrolabe Apps, Inc.
 
-;; Author: keydrill contributors
+;; Author: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is not part of GNU Emacs.
@@ -294,6 +294,27 @@ Each element is a status symbol or a result plist."
         (case-fold-search t))
     (should (string-match-p "Graduated" text))
     (should (string-match-p "two distinct local days" text))))
+
+(ert-deftest keydrill-ui-summary-zero-median-is-not-a-speed-pass ()
+  "A zero median means no sample survived, and must not read as 0 ms.
+Latencies at or above `keydrill-latency-interrupt-ms' are dropped,
+so an all-slow session leaves nothing to take a median of."
+  (let ((text (keydrill-format-summary
+               (list :accuracy 100 :median 0 :introduced 0
+                     :attempted 1 :first-try 1 :pass nil
+                     :graduated nil :pass-dates 0
+                     :deck-size 85 :deck-name "Emacs"))))
+    (should-not (string-match-p "latency: 0 ms" text))
+    (should (string-match-p "no timed answers" text))))
+
+(ert-deftest keydrill-ui-summary-real-median-is-shown ()
+  "A surviving median is printed as milliseconds."
+  (let ((text (keydrill-format-summary
+               (list :accuracy 100 :median 412 :introduced 0
+                     :attempted 1 :first-try 1 :pass nil
+                     :graduated nil :pass-dates 0
+                     :deck-size 85 :deck-name "Emacs"))))
+    (should (string-match-p "latency: 412 ms" text))))
 
 (provide 'keydrill-ui-test)
 ;;; keydrill-ui-test.el ends here

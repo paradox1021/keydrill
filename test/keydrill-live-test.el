@@ -1,8 +1,8 @@
 ;;; keydrill-live-test.el --- Tests for keydrill-live  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026  keydrill contributors
+;; Copyright (C) 2026  Astrolabe Apps, Inc.
 
-;; Author: keydrill contributors
+;; Author: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is not part of GNU Emacs.
@@ -244,6 +244,34 @@ FN is called with the temp buffer as its one argument."
       (let* ((move (keydrill-test-live-move "t.find" 'find-file "C-x C-f"))
              (resolved (keydrill-live-resolve-move move (current-buffer) 'skip)))
         (should (plist-get resolved :skipped))))))
+
+(ert-deftest keydrill-live-prefers-deck-key-among-vanilla-aliases ()
+  "A second vanilla binding is not a remap.
+`beginning-of-buffer' answers to both M-< and C-<home>, and
+`where-is-internal' may list C-<home> first.  The deck key wins
+and no \"your binding\" note is attached."
+  (cl-letf (((symbol-function 'where-is-internal)
+             (lambda (&rest _)
+               (list (vector 'C-home) (kbd "M-<")))))
+    (with-temp-buffer
+      (let* ((move (keydrill-test-live-move
+                    "t.bob" 'beginning-of-buffer "M-<"))
+             (resolved (keydrill-live-resolve-move move (current-buffer))))
+        (should (equal (plist-get resolved :expected-key) "M-<"))
+        (should-not (plist-get resolved :binding-note))))))
+
+(ert-deftest keydrill-live-reports-remap-when-deck-key-is-gone ()
+  "With the deck key unbound, the surviving binding is a real remap."
+  (cl-letf (((symbol-function 'where-is-internal)
+             (lambda (&rest _)
+               (list (vector 'C-home)))))
+    (with-temp-buffer
+      (let* ((move (keydrill-test-live-move
+                    "t.bob" 'beginning-of-buffer "M-<"))
+             (resolved (keydrill-live-resolve-move move (current-buffer))))
+        (should (equal (plist-get resolved :expected-key) "C-<home>"))
+        (should (string-match-p "your binding"
+                                (plist-get resolved :binding-note)))))))
 
 (provide 'keydrill-live-test)
 ;;; keydrill-live-test.el ends here

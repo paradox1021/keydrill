@@ -1,8 +1,8 @@
 ;;; keydrill-ui.el --- Drill buffer, summary, and graduation  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026  keydrill contributors
+;; Copyright (C) 2026  Astrolabe Apps, Inc.
 
-;; Author: keydrill contributors
+;; Author: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; Keywords: convenience
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -477,8 +477,16 @@ bar.  :pass is whatever `keydrill-session-pass-p' returned."
      (format "First-try hits: %d\n" first-try)
      (format "First-try accuracy (recall only): %d%% (need >= %d%%)\n"
              acc keydrill-pass-min-accuracy)
-     (format "Median first-try latency: %d ms (need < %d ms)\n"
-             med keydrill-pass-max-median)
+     ;; A zero median means no sample survived, not an instant answer:
+     ;; latencies at or above `keydrill-latency-interrupt-ms' are
+     ;; discarded as interruptions.  Saying "0 ms" would read as
+     ;; clearing the speed bar when the session in fact cannot pass it.
+     (if (> med 0)
+         (format "Median first-try latency: %d ms (need < %d ms)\n"
+                 med keydrill-pass-max-median)
+       (format "Median first-try latency: no timed answers, every one took over %d s (need < %d ms)\n"
+               (/ keydrill-latency-interrupt-ms 1000)
+               keydrill-pass-max-median))
      (format "Introduced this session: %d\n" introduced)
      (format "Graduation pace: %s\n" (if pass "yes" "no"))
      (format "Pass dates: %d / 2\n" n)

@@ -9,3 +9,13 @@
 # keydrill-deck-emacs.el.
 emacs-deck.json
 keydrill.code-workspace
+
+# manual-test helpers (not part of the package)
+landmine.el
+remap-test.el
+keydrill-diag.el
+
+# personal drafts, not part of the package
+email-to-sacha.md
+business-strategy.md
+letter-to-son.md

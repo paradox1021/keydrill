@@ -1,8 +1,8 @@
 ;;; keydrill-engine.el --- Lifecycle, session planner, and scoring  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026  keydrill contributors
+;; Copyright (C) 2026  Astrolabe Apps, Inc.
 
-;; Author: keydrill contributors
+;; Author: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; Keywords: convenience
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 

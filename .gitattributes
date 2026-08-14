@@ -1,0 +1,10 @@
+# Emacs Lisp is distributed with Unix line endings.  Without this, a
+# Windows checkout rewrites every file as CRLF and the next commit is
+# thousands of lines of churn.
+* text=auto eol=lf
+
+# Keep these exactly as authored.
+*.el text eol=lf
+*.org text eol=lf
+*.md text eol=lf
+Makefile text eol=lf

@@ -1,6 +1,6 @@
 ;;; batch-package-lint.el --- Run package-lint on keydrill  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026  keydrill contributors
+;; Copyright (C) 2026  Astrolabe Apps, Inc.
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;;; Commentary:
