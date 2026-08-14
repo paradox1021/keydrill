@@ -38,6 +38,11 @@
 (require 'keydrill-live)
 (require 'keydrill-journal)
 
+;; User-facing default lives in `keydrill.el' as a defcustom.
+(defvar keydrill-text-scale 0
+  "Text-scale steps for the drill buffer.
+Defined as a defcustom in keydrill.el.")
+
 (defvar keydrill-hit-pause-seconds 0.35
   "Seconds to pause after a hit before the next card.
 Tests bind this to 0 so `sit-for' does not steal queued events.
@@ -105,7 +110,11 @@ map.  After the summary, `q' restores the previous windows."
   (buffer-disable-undo)
   (setq-local truncate-lines nil)
   (setq-local cursor-type nil)
-  (visual-line-mode 1))
+  (visual-line-mode 1)
+  (when (and (boundp 'keydrill-text-scale)
+             (integerp keydrill-text-scale)
+             (/= keydrill-text-scale 0))
+    (text-scale-set keydrill-text-scale)))
 
 ;;; Session state
 

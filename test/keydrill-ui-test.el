@@ -316,5 +316,16 @@ so an all-slow session leaves nothing to take a median of."
                      :deck-size 85 :deck-name "Emacs"))))
     (should (string-match-p "latency: 412 ms" text))))
 
+(ert-deftest keydrill-ui-text-scale-applies-to-drill-buffer ()
+  "A nonzero `keydrill-text-scale' scales the keydrill buffer."
+  (let ((keydrill-text-scale 3))
+    (with-temp-buffer
+      (keydrill-mode)
+      (should (= text-scale-mode-amount 3))))
+  (let ((keydrill-text-scale 0))
+    (with-temp-buffer
+      (keydrill-mode)
+      (should (= text-scale-mode-amount 0)))))
+
 (provide 'keydrill-ui-test)
 ;;; keydrill-ui-test.el ends here

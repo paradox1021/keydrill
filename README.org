@@ -53,6 +53,9 @@ Or with ~use-package~:
   yes-or-no confirmation.
 - ~M-x keydrill-journal-purge~ — delete the answer journal the same
   way.
+
+Set ~keydrill-text-scale~ (e.g. to 3) to enlarge the drill buffer's
+text without touching the rest of Emacs.  Each step is roughly 20%.
 - ~M-x keydrill-observe-mode~ — opt-in usage observer.  *Off by
   default.*  When on, it counts how commands are invoked (key, M-x,
   menu/mouse) into the same local file.  It does not record keystroke

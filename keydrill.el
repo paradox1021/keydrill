@@ -72,6 +72,14 @@ like everything else here.  Set to nil to disable journaling.
   :type '(choice file (const :tag "Disabled" nil))
   :group 'keydrill)
 
+(defcustom keydrill-text-scale 0
+  "Text-scale steps applied to the drill buffer.
+Each step is roughly a 20% size change; 3 is comfortably large.
+0 leaves the buffer at your default size.  This scales only the
+keydrill buffer, not the rest of Emacs."
+  :type 'integer
+  :group 'keydrill)
+
 (defcustom keydrill-max-new-per-session 5
   "Maximum number of new or learning moves introduced in one session."
   :type 'integer
