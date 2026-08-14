@@ -8,20 +8,20 @@
 ;; Batch helper for `make lint'.  Installs package-lint into .elpa/
 ;; under the repo root if needed.  Not part of the package.
 ;;
-;; There is no public homepage yet, so the missing Homepage/URL header
-;; is filtered.  Every other package-lint warning or error still fails
-;; the batch.
+;; The package homepage is https://github.com/paradox1021/keydrill and
+;; keydrill.el carries a URL header, so nothing is filtered: every
+;; package-lint warning or error fails the batch.
 
 ;;; Code:
 
 (require 'cl-lib)
 (require 'package)
 
-(defun keydrill-batch-package-lint-keep-p (err)
+(defun keydrill-batch-package-lint-keep-p (_err)
   "Return non-nil if ERR should fail the batch.
-ERR is (LINE COL TYPE MESSAGE) from `package-lint-buffer'."
-  (let ((message (nth 3 err)))
-    (not (string-equal message "Package should have a Homepage or URL header."))))
+ERR is (LINE COL TYPE MESSAGE) from `package-lint-buffer'.
+Nothing is filtered now that keydrill.el has a URL header."
+  t)
 
 (let* ((root (expand-file-name ".." (file-name-directory (or load-file-name
                                                             default-directory))))

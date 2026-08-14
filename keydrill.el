@@ -5,6 +5,7 @@
 ;; Author: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; Maintainer: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; Version: 0.1.0
+;; URL: https://github.com/paradox1021/keydrill
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: convenience, help
 ;; SPDX-License-Identifier: GPL-3.0-or-later

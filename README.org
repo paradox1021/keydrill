@@ -12,12 +12,18 @@ Requires GNU Emacs 27.1 or later.  Licensed under GPL-3.0-or-later.
 
 ** Status
 
-Milestone M7.  Not on MELPA yet.  The working name is ~keydrill~;
-verify it is free on MELPA and GNU ELPA before publishing.
+v0.1.0.  Not on MELPA yet (submission planned).  Home:
+https://github.com/paradox1021/keydrill
 
 ** Install
 
-From source, add the checkout to ~load-path~ and load the package:
+On Emacs 29+, straight from this repository:
+
+#+begin_src emacs-lisp
+(package-vc-install "https://github.com/paradox1021/keydrill")
+#+end_src
+
+Or from a checkout, add it to ~load-path~ and load the package:
 
 #+begin_src emacs-lisp
 (add-to-list 'load-path "/path/to/keydrill")
@@ -32,9 +38,6 @@ Or with ~use-package~:
   :commands (keydrill keydrill-observe-mode keydrill-report
                       keydrill-purge-data))
 #+end_src
-
-A MELPA recipe will follow once there is a public repository.  See
-[[#melpa-recipe][MELPA recipe]] below.  Do not invent a GitHub URL.
 
 ** Usage
 
@@ -91,45 +94,38 @@ The landmine matrix is human, not CI.  Walk it in GUI Emacs and in
 | ~M-<~   | Arrives as ~ESC <~ | | |
 | ~C-M-\~ | Arrives as ~ESC C-\~ | | |
 
-** Before you publish
+The landmine matrix was hand-walked in GUI Emacs and ~emacs -nw~ on
+Windows GNU Emacs 30.2 (2026-08-13); the hand pass caught two real
+bugs the 114 ERT tests had not (a false "your binding" on stock
+aliases like ~M-<~ / ~C-<home>~, and a summary that reported an
+untimed session as 0 ms).
 
-These are not CI.  Do them on a real machine tonight:
+** How this was built
 
-1. Walk the landmine table above in GUI Emacs *and* ~emacs -nw~.
-   On Windows, ~emacs -nw~ in Windows Terminal is enough.  ~C-M-\~
-   may only arrive as ~ESC C-\~; that still counts if the card
-   scores a hit.
-2. Play one session in ~emacs -Q~ and one in your real config (live
-   keymap).  Confirm a remapped command shows "your binding".
-3. Create the public GitHub repository.  Then:
-   - put the real ~USER/keydrill~ into ~melpa-recipe~
-   - add a ~URL:~ header to ~keydrill.el~ (package-lint currently
-     filters the missing-homepage warning on purpose)
-   - put your name in ~Author~ / ~Maintainer~ (MELPA prefers a
-     person, not "contributors")
-4. Re-check the name ~keydrill~ on MELPA and GNU ELPA on submit day.
-   A local archive snapshot used while building this tree had
-   ~key-quiz~ and not ~keydrill~ or ~keywiz~.
-5. If an announcement quotes a move count: this deck is *85* vanilla
-   GNU Emacs moves.  Do not say 95.  If cmdenter.app still says 95,
-   fix that copy before any email that cites both.
-6. Optional after v1: email Sacha.  Do not start R2/R3.
+The code in this package was written with an AI agent.  The design,
+the curated deck, the prompts (adapted from my web trainer), the
+manual landmine testing, and the bug reports above are human work.
+Review it as skeptically as you would any code, which is good advice
+either way.
+
+keydrill is GPL-3 and complete as-is — no accounts, no upsell, no
+network code, and that will not change.  My company, Astrolabe Apps,
+builds commercial team-training tools; keydrill remains free and
+independent of them.
 
 ** MELPA recipe
 :PROPERTIES:
 :CUSTOM_ID: melpa-recipe
 :END:
 
-There is no public GitHub URL yet.  ~REPO~ is TBD.  When a remote
-exists, the MELPA recipe form is:
-
 #+begin_src emacs-lisp
-;; REPO is TBD.  Replace USER/keydrill when the remote exists.
-;; (keydrill :fetcher github :repo "USER/keydrill")
+(keydrill :fetcher github :repo "paradox1021/keydrill")
 #+end_src
 
-The same template lives in the ~melpa-recipe~ file at the repo root.
+The same form lives in the ~melpa-recipe~ file at the repo root.
 MELPA generates ~keydrill-pkg.el~; this tree does not ship it.
+Re-check the name ~keydrill~ against MELPA and GNU ELPA on
+submission day.
 
 ** Development
 
