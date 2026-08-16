@@ -263,8 +263,8 @@ checkdoc and package-lint. ~make test~ runs the full ERT suite.
 Worth stating plainly, because you would find out anyway and I would
 rather you heard it from the README.
 
-*The design is mine; most of the Elisp was written by an AI coding
-agent under my direction.* I wrote the build plan, the engine
+*The design is mine; most of the Elisp was written by AI coding agents in Cursor (Claude Opus 5, Composer 2.5, and Grok 4.6)
+under my direction.* I wrote the build plan, the engine
 specification, the deck, and the milestone breakdown before any code
 existed, then drove an agent through it milestone by milestone, with
 compile, lint, and the test suite gating each step. I reviewed the
@@ -303,5 +303,6 @@ section would show it. This package is the method in public, where it
 can be checked.
 
 ** License
+
 
 GPL-3.0-or-later. See ~LICENSE~.

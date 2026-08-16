@@ -3,6 +3,9 @@
 ;; Copyright (C) 2026  Astrolabe Apps, Inc.
 
 ;; Author: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
+;; Assisted-by: Cursor:claude-opus-5
+;; Assisted-by: Cursor:composer-2.5
+;; Assisted-by: Cursor:grok-4.6
 ;; Maintainer: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; Version: 0.2.0
 ;; URL: https://github.com/paradox1021/keydrill
