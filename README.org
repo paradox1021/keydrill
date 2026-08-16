@@ -1,147 +1,253 @@
 #+TITLE: keydrill
+#+OPTIONS: toc:nil num:nil
 
 * keydrill
 
-Drill Emacs key bindings in short sessions until they stick.  Each
+Drill Emacs key bindings in short sessions until they stick. Each
 session introduces a few new moves, then recalls ones still being
-drilled.  At session start, keydrill looks up each command in the
-buffer you launched from and drills *your* binding when it differs
-from the vanilla default.
+drilled. At session start, keydrill looks up each command in the
+buffer you launched from and drills *your* binding when the vanilla
+default is no longer live.
 
-Requires GNU Emacs 27.1 or later.  Licensed under GPL-3.0-or-later.
+Requires GNU Emacs 27.1 or later. Licensed under GPL-3.0-or-later.
 
 ** Status
 
-v0.1.0.  Not on MELPA yet (submission planned).  Home:
-https://github.com/paradox1021/keydrill
+v0.2.0. Not on MELPA yet; install with ~package-vc-install~ or from a
+checkout. Re-check that the name ~keydrill~ is free on MELPA and GNU
+ELPA on submit day.
+
+The landmine matrix below has been walked in GUI Emacs and in
+~emacs -nw~ on GNU Emacs 30.2, and playing real sessions by hand found
+two defects the batch suite had missed (see CHANGELOG 0.1.0). Reports
+from other terminals and other platforms are welcome.
 
 ** Install
 
-On Emacs 29+, straight from this repository:
+*** Emacs 29 or later
 
 #+begin_src emacs-lisp
 (package-vc-install "https://github.com/paradox1021/keydrill")
 #+end_src
 
-Or from a checkout, add it to ~load-path~ and load the package:
+Or interactively:
 
-#+begin_src emacs-lisp
-(add-to-list 'load-path "/path/to/keydrill")
-(require 'keydrill)
+: M-x package-vc-install RET https://github.com/paradox1021/keydrill RET
+
+This clones the repository and sets up autoloads. ~M-x keydrill~ works
+immediately; no ~require~ is needed.
+
+*** From a checkout
+
+#+begin_src sh
+git clone https://github.com/paradox1021/keydrill ~/src/keydrill
 #+end_src
 
-Or with ~use-package~:
+With ~use-package~:
 
 #+begin_src emacs-lisp
 (use-package keydrill
-  :load-path "/path/to/keydrill"
-  :commands (keydrill keydrill-observe-mode keydrill-report
-                      keydrill-purge-data))
+  :load-path "~/src/keydrill"
+  :commands (keydrill keydrill-benchmark keydrill-observe-mode
+                      keydrill-report keydrill-purge-data))
+#+end_src
+
+Or plainly:
+
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/src/keydrill")
+(require 'keydrill)
 #+end_src
 
 ** Usage
 
-- ~M-x keydrill~ — start a session on the curated Emacs deck.  ~q~
-  leaves the session.  A second ~C-g~ within one second also quits
-  (~C-g~ itself is a drill answer when that is the card).
-- ~M-x keydrill-benchmark~ — one cold recall pass over the whole
-  deck, live-resolved: no answers shown, misses not requeued, the
-  progress store untouched.  A measurement, not a lesson.  Run it
-  once *before* you start drilling (that baseline is unrepeatable)
-  and weekly after; each answer lands in the journal.
-- ~M-x keydrill-purge-data~ — delete the local progress file after
+- ~M-x keydrill~ --- start a session on the curated Emacs deck. New
+  moves arrive as intro cards showing the key; one correct press locks
+  a move into the recall rotation, where you answer before you see
+  anything. At most five new moves per session
+  (~keydrill-max-new-per-session~). ~q~ leaves the session. A second
+  ~C-g~ within one second also quits (~C-g~ itself is a drill answer
+  when that is the card).
+
+- ~M-x keydrill-benchmark~ --- one cold pass over the whole 85-move
+  deck, live-resolved: no answers shown, no requeue, and *no writes to
+  the progress store*. A measurement, not a lesson. Run it once before
+  your first drill session --- that baseline is unrepeatable --- and
+  weekly afterwards under the same conditions. Every answer is
+  appended to the journal.
+
+- ~M-x keydrill-observe-mode~ --- opt-in usage observer. *Off by
+  default.* When on, it counts how commands are invoked (key, M-x,
+  menu/mouse) by command and local ISO week, into the same local file.
+  It does not record keystroke content, buffer text, or file names,
+  and it ignores the minibuffer, isearch, and ordinary self-insertion.
+  Enabling it the first time shows a buffer stating exactly that.
+
+- ~M-x keydrill-report~ --- unused-binding gaps from the observer:
+  commands you run via M-x, the menu, or the mouse that already have a
+  key in your live keymap, ranked by count times keys saved. ~RET~ or
+  a digit drills that row; ~a~ drills all listed moves.
+
+- ~M-x keydrill-purge-data~ --- delete the local progress file after
   yes-or-no confirmation.
-- ~M-x keydrill-journal-purge~ — delete the answer journal the same
-  way.
 
-Set ~keydrill-text-scale~ (e.g. to 3) to enlarge the drill buffer's
-text without touching the rest of Emacs.  Each step is roughly 20%.
-- ~M-x keydrill-observe-mode~ — opt-in usage observer.  *Off by
-  default.*  When on, it counts how commands are invoked (key, M-x,
-  menu/mouse) into the same local file.  It does not record keystroke
-  content, buffer text, or file names.
-- ~M-x keydrill-report~ — unused-binding gaps from the observer
-  (commands you run via M-x or the menu that already have a key).
-  Jump from a row into a drill of those moves.
+- ~M-x keydrill-journal-purge~ --- delete the answer journal after
+  yes-or-no confirmation. Note that this command is not autoloaded: it
+  is available once keydrill has been loaded in the session.
 
-** Privacy
+** The bar
 
-No account, no telemetry, no network.  Progress is a readable
-~keydrill-data.eld~ in ~user-emacs-directory~, written with ~prin1~.
-~M-x keydrill-purge-data~ deletes it.
+A move is displayed as *learned* at three or more recall samples, at
+least 90% first-try, and a last latency above 0 and strictly under
+800 ms.
 
-Raw answers (move id, hit/miss, latency, timestamp — never keystroke
-content or buffer text) are appended to a second readable file,
-~keydrill-journal.eld~, so you can reconstruct your own progress
-curves.  Set ~keydrill-journal-file~ to nil to disable;
-~M-x keydrill-journal-purge~ deletes it.
+A session is at *graduation pace* when first-try accuracy is at least
+95%, median first-try latency is above 0 and under 800 ms, and recall
+attempts cover the full deck. The deck *graduates* after two distinct local
+calendar days at that pace --- two days, not two sessions.
+
+Intro cards never contribute to accuracy, latency, or graduation.
+Teaching statistics and testing statistics are kept apart.
+
+** Is this spaced repetition?
+
+Not in the technical sense, and it is worth saying so before you find out
+by reading the source.
+
+keydrill has no interval algorithm. There is no per-move due date, no ease
+factor, no SM-2. Within a session, recall is a shuffle of every move in the
+drilling phase at open levels; a miss reveals the answer, waits for the
+correct press, and queues one more copy before the session ends. Across
+sessions the only scheduling pressure is a cap of five new moves per
+session and a graduation gate that requires holding the bar on two separate
+local days. If you arrived expecting [[https://orgmode.org/worg/org-contrib/org-drill.html][org-drill]] or [[https://github.com/abo-abo/pamparam][pamparam]] behaviour --- both of
+which do implement real intervals, and both of which predate this --- that
+is precisely what you are not getting.
+
+Three reasons it is built this way.
+
+*The bar is speed, not retrievability.* SM-2 and its descendants optimise
+the probability that you can recall an item after N days. keydrill's pass
+condition is a median under 800 ms. That is automaticity, not availability.
+An interval schedule has no opinion about how fast an answer arrives, and
+for a key chord "I remembered it, after four seconds" is a failure --- you
+would have reached for the menu by then.
+
+*Chords are procedural, and the motor-practice literature prescribes
+within-session mixing.* The blocked-versus-random contextual interference
+result (Shea & Morgan, 1979, replicated for forty years) is that mixed
+practice feels worse during the session and retains and transfers better
+afterwards. That is a within-session prescription, and shuffling recall
+every session implements it directly. SM-2 grew out of declarative
+vocabulary learning, which is a different memory system with different
+consolidation behaviour.
+
+*The deck is 85 moves, not 10,000.* Interval scheduling earns its
+complexity when the review queue would otherwise be unmanageable. At this
+size one session can cover the entire deck --- which is exactly what the
+coverage condition for graduation demands --- so the problem that
+scheduling exists to solve does not really arise.
+
+None of that dismisses spacing itself. Distributed practice outlasting
+massed practice at equal total time is about as settled as findings in this
+area get (Cepeda et al., 2008). keydrill honours it at the *day* scale
+rather than the *item* scale: short sessions by design, a five-new cap that
+makes cramming pointless, and a graduation gate that cannot be satisfied in
+one sitting no matter how well you perform.
+
+Where the argument gets weaker, stated honestly:
+
+- Once someone is carrying several decks, or a few hundred moves in the
+  drilling phase, shuffling everything open is wasteful. A move you have
+  held at 100% for three weeks costs the same session time as one you keep
+  missing. The store already records last-seen and last latency per move,
+  so weak-and-stale biasing is implementable without any new capture. It is
+  on the roadmap, and it is the change most likely to make this section
+  obsolete.
+- I am not aware of a study that directly compares interval-scheduled
+  against session-based practice for keyboard chords specifically. The
+  reasoning above is an inference from adjacent literature --- motor
+  learning, contextual interference, automaticity --- not a result. If you
+  know of work that settles it, I would genuinely like to read it, and I
+  will change the engine rather than the argument.
+
+** Files and privacy
+
+No account, no telemetry, no network. Two readable files live in
+~user-emacs-directory~:
+
+| File                   | Contents                                                     |
+|------------------------+--------------------------------------------------------------|
+| ~keydrill-data.eld~    | Per-move progress, per-deck records, and observer counts     |
+| ~keydrill-journal.eld~ | One sexp per answered card: move, result, latency, timestamp |
+
+Both are written with ~prin1~ and can be opened in a buffer. Set
+~keydrill-journal-file~ to nil to disable journaling.
 
 To confirm there is no network code in the package files:
 
 #+begin_src sh
-grep -rn "url-retrieve\|url\\.el\|request" *.el
+grep -rn "url-retrieve\|url\.el\|request" *.el
 #+end_src
 
 ** Prior art
 
 [[https://github.com/federicotdn/key-quiz][key-quiz]] (federicotdn) and keywiz already drill Emacs keys from a
-fixed list.  keydrill adds live-keymap resolution (drill the binding
-you actually use) and an opt-in usage-gap observer.
+fixed list. keydrill adds live-keymap resolution (when a deck command's
+vanilla key is no longer live, the binding you actually use is drilled
+instead), an opt-in usage-gap observer, and a cold benchmark with an
+answer journal behind it.
 
 Prompts were adapted from my web trainer.
 
 ** Terminal notes
 
-Capture folds terminal and GUI spellings of the same binding:
-~C-/~ ↔ ~C-_~, ~C-SPC~ ↔ ~C-@~, ~TAB~ ↔ ~C-i~, and Escape-prefixed
-Meta chords (~ESC x~ ↔ ~M-x~, ~ESC <~ ↔ ~M-<~, ~ESC C-\~ ↔ ~C-M-\~).
-Live lookup skips menu-bar, mouse, and GUI names such as ~<open>~
-(the File-open event); ~find-file~ drills ~C-x C-f~, not that event.
+Capture folds terminal and GUI spellings of the same binding: ~C-/~ ↔
+~C-_~, ~C-SPC~ ↔ ~C-@~, ~TAB~ ↔ ~C-i~, and Escape-prefixed Meta chords
+(~ESC x~ ↔ ~M-x~, ~ESC <~ ↔ ~M-<~, ~ESC C-\~ ↔ ~C-M-\~). Live lookup
+skips menu-bar, mouse, and GUI names such as ~<open>~ (the File-open
+event); ~find-file~ drills ~C-x C-f~, not that event.
 
-The landmine matrix is human, not CI.  Walk it in GUI Emacs and in
-~emacs -nw~ before you trust a terminal.  Check each row in both:
+The landmine matrix is human, not CI --- no batch test can observe how
+a key actually arrives from a real terminal. It has been walked on GNU
+Emacs 30.2 in GUI and in ~emacs -nw~ under Windows Terminal, and all
+six chords behaved. If you use a different terminal, walk it once
+before you trust a session there:
 
-| Binding | Why it is a landmine | GUI | tty |
-|---------+----------------------+-----+-----|
-| ~C-g~   | Must score as an answer, not ~keyboard-quit~ | | |
-| ~C-x C-c~ | Must not kill Emacs | | |
-| ~C-/~   | Arrives as ~C-_~ in many terminals | | |
-| ~C-SPC~ | Arrives as ~C-@~ in many terminals | | |
-| ~M-<~   | Arrives as ~ESC <~ | | |
-| ~C-M-\~ | Arrives as ~ESC C-\~ | | |
+| Binding   | Why it is a landmine                           | GUI | tty |
+|-----------+------------------------------------------------+-----+-----|
+| ~C-g~     | Must score as an answer, not ~keyboard-quit~   |     |     |
+| ~C-x C-c~ | Must not kill Emacs                            |     |     |
+| ~C-/~     | Arrives as ~C-_~ in many terminals             |     |     |
+| ~C-SPC~   | Arrives as ~C-@~ in many terminals             |     |     |
+| ~M-<~     | Arrives as ~ESC <~                             |     |     |
+| ~C-M-\~   | Arrives as ~ESC C-\~                           |     |     |
 
-The landmine matrix was hand-walked in GUI Emacs and ~emacs -nw~ on
-Windows GNU Emacs 30.2 (2026-08-13); the hand pass caught two real
-bugs the 114 ERT tests had not (a false "your binding" on stock
-aliases like ~M-<~ / ~C-<home>~, and a summary that reported an
-untimed session as 0 ms).
+** Before you publish
 
-** How this was built
+These are not CI. Do them on a real machine:
 
-The code in this package was written with an AI agent.  The design,
-the curated deck, the prompts (adapted from my web trainer), the
-manual landmine testing, and the bug reports above are human work.
-Review it as skeptically as you would any code, which is good advice
-either way.
-
-keydrill is GPL-3 and complete as-is — no accounts, no upsell, no
-network code, and that will not change.  My company, Astrolabe Apps,
-builds commercial team-training tools; keydrill remains free and
-independent of them.
+1. Re-walk the landmine table above on any terminal you have not
+   tested. ~C-M-\~ may only arrive as ~ESC C-\~; that still counts if
+   the card scores a hit.
+2. Play one session in ~emacs -Q~ and one in your real config (live
+   keymap). Confirm that a command whose vanilla key you have unbound
+   drills your binding instead.
+3. Re-check the name ~keydrill~ on MELPA and GNU ELPA on submit day.
+4. If an announcement quotes a move count: this deck is *85* vanilla
+   GNU Emacs moves. Do not say 95. If cmdenter.app still says 95, fix
+   that copy before any email that cites both.
+5. Tag the release before announcing it. As of 0.2.0 the version
+   header in ~keydrill.el~ must match the tag.
 
 ** MELPA recipe
-:PROPERTIES:
-:CUSTOM_ID: melpa-recipe
-:END:
 
 #+begin_src emacs-lisp
 (keydrill :fetcher github :repo "paradox1021/keydrill")
 #+end_src
 
-The same form lives in the ~melpa-recipe~ file at the repo root.
-MELPA generates ~keydrill-pkg.el~; this tree does not ship it.
-Re-check the name ~keydrill~ against MELPA and GNU ELPA on
-submission day.
+The same form lives in the ~melpa-recipe~ file at the repo root. MELPA
+generates ~keydrill-pkg.el~; this tree does not ship it.
 
 ** Development
 
@@ -149,9 +255,53 @@ submission day.
 make compile lint test
 #+end_src
 
-~make compile~ byte-compiles with warnings as errors.  ~make lint~
-runs checkdoc and package-lint.  ~make test~ runs the full ERT suite.
+~make compile~ byte-compiles with warnings as errors. ~make lint~ runs
+checkdoc and package-lint. ~make test~ runs the full ERT suite.
+
+** How this was built
+
+Worth stating plainly, because you would find out anyway and I would
+rather you heard it from the README.
+
+*The design is mine; most of the Elisp was written by an AI coding
+agent under my direction.* I wrote the build plan, the engine
+specification, the deck, and the milestone breakdown before any code
+existed, then drove an agent through it milestone by milestone, with
+compile, lint, and the test suite gating each step. I reviewed the
+output, specified the fixes, and ran every test.
+
+*The tests are real, and the ones that mattered most were human.* The
+suite is 122 ERT tests running in batch, plus byte-compilation with
+warnings as errors, ~package-lint~, and ~checkdoc~. Before publishing
+I also sat down and played real sessions in GUI Emacs and in
+~emacs -nw~, which found two defects the suite had not: a "your
+binding" note appearing on a stock keymap because ~where-is-internal~
+happened to list ~C-<home>~ before ~M-<~, and a summary that printed
+"0 ms" for a session in which nothing had actually been timed. Both
+are the same kind of bug --- the package drawing a wrong /conclusion/
+from correct inputs --- and neither is the kind a batch test tends to
+ask about. If you find a third, that is the most useful bug report I
+could get.
+
+*I am not a longtime Emacs user.* I came to this from a web-based
+shortcut trainer I built for other applications, and a suggestion that
+the idea belonged inside Emacs rather than in a browser tab. Take that
+as a warning about my instincts for Emacs convention and as an
+invitation: conventions I have broken are worth telling me about. For
+calibration, my own cold benchmark on the deck I built was *3 hits out
+of 71 answered --- 4%, median 4.1 seconds*. I wrote a tool to fix a
+problem I had.
+
+*Relationship to my commercial work.* I run [[https://cmdenter.app][CmdEnter]], a paid web
+trainer for shortcuts in other software, and I sell fluency training
+engagements built on the same method. The prompts in this deck were
+adapted from that trainer, which is why the Commentary credits it.
+keydrill itself is GPL-3.0-or-later, has no network code, no account,
+no telemetry, and no upsell, and it will stay that way --- it is not a
+funnel and it is not crippled. If it were, the ~grep~ in the privacy
+section would show it. This package is the method in public, where it
+can be checked.
 
 ** License
 
-GPL-3.0-or-later.  See ~LICENSE~.
+GPL-3.0-or-later. See ~LICENSE~.

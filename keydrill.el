@@ -4,7 +4,7 @@
 
 ;; Author: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
 ;; Maintainer: Brendan Kavanaugh (Astrolabe Apps, Inc.) <Brendan@astrolabeapps.com>
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; URL: https://github.com/paradox1021/keydrill
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: convenience, help
